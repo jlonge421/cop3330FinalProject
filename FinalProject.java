@@ -157,7 +157,7 @@ class TA extends Person {
     }
 
     public void addLecture(int crn) {
-        lectures.add(crn);
+        lecture.add(crn);
     }
 
     public String getSchedule(ArrayList<Lecture> allLectures, ArrayList<Lab> allLabs) {
@@ -570,11 +570,10 @@ public class FinalProject {
                                 // Add the relationship between the lecture's CRN and the faculty member
                                 lectureFacultyMap.put(crn, newFaculty);
                                 if(lecture.hasLabs()){
-                                    int numLabs = lecture.getLabs().size();
+                                    int numLabs = (lecture.hasLabs()).size();
                                     System.out.println(crn+" has "+numLabs+" lab sections:");
-                                    for(int ixLabs=0; ixLabs<numLabs; ixLabs++){
-                                        System.out.print(lecture.getLabs(ixLabs)+", ");
-                                        //begin TA stuff here
+                                    for(int i=0; i<numLabs; i++){
+                                        System.out.print(lecture.getLabs(i)+", ");
                                     }
                                     System.out.println("");
                                 }
@@ -585,7 +584,7 @@ public class FinalProject {
                     }
                     // Add the new Faculty to the people list
                     people.addPerson(newFaculty);
-                    System.out.println("Added "+numLectures +" lectures to UCF ID "+ ucfID);
+                    System.out.println("Added "+numLectures +" lectures to "+ ucfID);
                 /*
                  // add TA to labs
                  for (size.lecture.getLabs()){
