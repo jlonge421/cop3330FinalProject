@@ -22,5 +22,3 @@
 36637,SOF2058,Introduction to Software,Undergraduate,Online
 22658,LOG5578,Logic and Proof,Graduate,F2F,LPS-35,Yes
 98000,CMA-008
-94442,RMA-013
-56510,RMA-028
