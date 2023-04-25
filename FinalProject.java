@@ -113,8 +113,6 @@ class UniversityPeople extends People {
         }
         return students;
     }
-
-
 }
 
 
@@ -138,8 +136,6 @@ class Faculty extends Person {
     public ArrayList<Integer> getLectures() {
     return lectures;
 }
-
-
 }
 
 class TA extends Person {
@@ -159,6 +155,11 @@ class TA extends Person {
     public void addLab(int crn) {
         labs.add(crn);
     }
+
+    public void addLecture(int crn) {
+        lectures.add(crn);
+    }
+
     public String getSchedule(ArrayList<Lecture> allLectures, ArrayList<Lab> allLabs) {
         StringBuilder schedule = new StringBuilder();
         schedule.append("Schedule for ").append(name).append(" (UCFID: ").append(ucfID).append("):\n");
@@ -187,7 +188,6 @@ class TA extends Person {
         
         return schedule.toString();
     }
-
 }
 
 class Student extends Person {
@@ -352,6 +352,15 @@ class Lecture {
         return labCRNs;
     }
 
+    public int getLabs(int idx) {
+        ArrayList<Integer> labCRNs = new ArrayList<>();
+        for (Lab lab : labs) {
+            labCRNs.add(lab.getCRN());
+        }
+        int labIdx = labCRNs.get(idx);
+        return labIdx;
+    }
+
     // Returns CRN
     public int getCRN() {
         return crn;
@@ -470,6 +479,8 @@ public class FinalProject {
         }
     }
 
+    //public static void addTa
+
 
 
 
@@ -531,14 +542,14 @@ public class FinalProject {
                     System.out.println("Enter office location:");
                     String officeLocation = sc.nextLine();
                     System.out.println("How many lectures to assign to this faculty?");
+
+                    // make sure an integer is entered
                     int numLectures = 0;
-                    boolean success = false;
-                    while(!success){
+                    while(true){
                         try{
                             String stringIntTemp = sc.next();
                             numLectures = Integer.parseInt(stringIntTemp);
-                            success = true;
-                            
+                            break;
                             
                         } catch (Exception e) {
                             System.out.println("Make sure you are entering a whole number. Try again..");
@@ -559,27 +570,36 @@ public class FinalProject {
                                 // Add the relationship between the lecture's CRN and the faculty member
                                 lectureFacultyMap.put(crn, newFaculty);
                                 if(lecture.hasLabs()){
-                                    System.out.println(crn+" has labs: "+lecture.getLabs());
-                                    // ask for TA name for each of the labs.
-                                    // check that the TA's schedule as a student isnt in that CRN
+                                    int numLabs = lecture.getLabs().size();
+                                    System.out.println(crn+" has "+numLabs+" lab sections:");
+                                    for(int ixLabs=0; ixLabs<numLabs; ixLabs++){
+                                        System.out.print(lecture.getLabs(ixLabs)+", ");
+                                        //begin TA stuff here
+                                    }
+                                    System.out.println("");
                                 }
+
                                 break;
                             }
                         }
                     }
-
-
-
-
-
-
-
-                    
                     // Add the new Faculty to the people list
                     people.addPerson(newFaculty);
-                    System.out.println("Added "+numLectures +" lectures to "+ ucfID);
-                    break;
+                    System.out.println("Added "+numLectures +" lectures to UCF ID "+ ucfID);
+                /*
+                 // add TA to labs
+                 for (size.lecture.getLabs()){
+                     if(lecture.hasLabs()){
+                         System.out.println(crn+" has labs: "+lecture.getLabs());
+                         // ask for TA name for each of the labs.
+                         // check that the TA's schedule as a student isnt in that CRN
+                         System.out.println("Enter the TA’s id for "+lecture.getLabs(0)+": ");
+                         int ucfIDTA = sc.nextInt();
 
+                     }
+                 }
+                    */
+                    break;
                 case 2:
                     /* 2- Enroll a student to a lecture 
                     (and to one of its labs if applicable)
@@ -711,4 +731,3 @@ public class FinalProject {
         }
     }
 }
-
