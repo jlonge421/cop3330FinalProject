@@ -129,6 +129,10 @@ class Faculty extends Person {
         this.lectures = new ArrayList<>();
     }
 
+    public Faculty(String name){
+        super(name, 0000000, "TA supervisor");
+    }
+
     public void addLecture(int crn) {
         lectures.add(crn);
     }
@@ -154,18 +158,34 @@ class TA extends Person {
 
     public void addLab(int crn) {
         labs.add(crn);
+        System.out.println("lab "+crn+" added");
     }
 
     public void addLecture(int crn) {
-        lecture.add(crn);
+        lectures.add(crn);
     }
+
+    public ArrayList<Integer> getLectures() {
+        return lectures;
+    }
+
+    public int getLecture(int idx) {
+        ArrayList<Integer> lecturesCRNs = new ArrayList<>();
+        for (int lecture : lectures) {
+            lecturesCRNs.add(lecture);
+        }
+        int lecIdx = lecturesCRNs.get(idx); //int lecIdx = lecturesCRNs.get(idx).getCRN();
+        return lecIdx;
+    }
+
 
     public String getSchedule(ArrayList<Lecture> allLectures, ArrayList<Lab> allLabs) {
         StringBuilder schedule = new StringBuilder();
         schedule.append("Schedule for ").append(name).append(" (UCFID: ").append(ucfID).append("):\n");
         
         if (lectures.isEmpty() && (labs == null || labs.isEmpty())) {
-            schedule.append("No classes enrolled.");
+            schedule.append("No classes enrolled.\n");
+            schedule.append("No labs enrolled.");
         } else {
             schedule.append("Lectures:\n");
             for (int lectureCRN : lectures) {
@@ -175,15 +195,16 @@ class TA extends Person {
                 }
             }
             
-            if (labs != null && !labs.isEmpty()) {
+            
                 schedule.append("Labs:\n");
-                for (int labCRN : labs) {
-                    Lab lab = FinalProject.getLabByCRN(labCRN, allLabs);
-                    if (lab != null) {
-                        schedule.append(lab.toString()).append("\n");
+                if (labs != null && !labs.isEmpty()){
+                    for (int labCRN : labs) {
+                        Lab lab = FinalProject.getLabByCRN(labCRN, allLabs);
+                        if (lab != null) {
+                            schedule.append(lab.toString()).append("\n");
+                        }
                     }
-                }
-            }
+                } 
         }
         
         return schedule.toString();
@@ -203,9 +224,9 @@ class Student extends Person {
     */
 
     public Student(String name, int ucfID, ArrayList<Integer> lectures) {
-    super(name, ucfID, "Student");
-    this.lectures = lectures;
-    this.labs = new ArrayList<>(); // Initialize the labs ArrayList
+        super(name, ucfID, "Student");
+        this.lectures = lectures;
+        this.labs = new ArrayList<>(); // Initialize the labs ArrayList
     }
 
     public void removeLecture(Lecture lectureToRemove) {
@@ -215,6 +236,18 @@ class Student extends Person {
         }
     }
 
+    public ArrayList<Integer> getLectures() {
+        return lectures;
+    }
+
+    public int getLecture(int idx) {
+        ArrayList<Integer> lecturesCRNs = new ArrayList<>();
+        for (int lecture : lectures) {
+            lecturesCRNs.add(lecture);
+        }
+        int lecIdx = lecturesCRNs.get(idx); //int lecIdx = lecturesCRNs.get(idx).getCRN();
+        return lecIdx;
+    }
 
     public String getSchedule(ArrayList<Lecture> allLectures, ArrayList<Lab> allLabs) {
         StringBuilder schedule = new StringBuilder();
@@ -567,13 +600,56 @@ public class FinalProject {
                         for (Lecture lecture : allLectures) {
                             if (lecture.getCRN() == crn) {
                                 newFaculty.addLecture(crn);
-                                // Add the relationship between the lecture's CRN and the faculty member
+                                // Add hash relationship between the lecture's CRN and the faculty member
                                 lectureFacultyMap.put(crn, newFaculty);
                                 if(lecture.hasLabs()){
-                                    int numLabs = (lecture.hasLabs()).size();
-                                    System.out.println(crn+" has "+numLabs+" lab sections:");
-                                    for(int i=0; i<numLabs; i++){
-                                        System.out.print(lecture.getLabs(i)+", ");
+                                    int numLabs = lecture.getLabs().size();
+                                    System.out.println(crn+" has "+numLabs+" lab sections:" +lecture.getLabs());
+                                    for(int ixLabs=0; ixLabs<numLabs; ixLabs++){
+                                        int curLab = lecture.getLabs(ixLabs);
+                                        System.out.print(curLab+", ");
+                                        //begin TA stuff here
+                                        System.out.println("Enter the TA’s id for "+curLab+": ");
+                                        int ucfIDTA = sc.nextInt();
+                                        // Search for the TA's lecture's and make sure they dont match curCRN
+                                        // check students for the TA's ucfID. 
+                                        // if found, make sure getLectures(TA)!=curLecCRN
+
+                                        Student studentTA = people.findStudentByID(ucfIDTA);
+                                        // Good idea to print out if the TA has been found as a Student
+                                        //for()
+                                        System.out.println("TA’s supervisor’s name: ");
+                                        String trashXchg = sc.nextLine();
+                                        String advisor = sc.nextLine();
+                                        Faculty supervisor = new Faculty(advisor);
+                                        System.out.println("Name of TA: ");
+                                        String nameTA = sc.nextLine();
+                                        System.out.println("Degree Seeking: ");
+                                        String degree = sc.nextLine();
+                                        
+                                        //construct TA after gathering all info
+                                        TA newTA = new TA(nameTA, ucfIDTA, supervisor, degree);
+                                        people.addPerson(newTA);
+                                        for(Lecture lecture2 : allLectures){
+                                            int numLecTA = newTA.getLectures().size();
+                                            for (int idx = 0; idx < numLecTA; idx++){
+                                                if (lecture2.getCRN() == newTA.getLecture(idx)) {
+
+                                                    System.out.println("TA is a student in the lecture! Pick another TA...");
+                                                    break;
+                                                }
+                                                // else, if TA is good to hire
+                                                System.out.println("HEEEEREEEE!");
+                                                newTA.addLab(curLab);
+
+                                            }
+                                        }
+
+                                        
+
+
+                                        
+
                                     }
                                     System.out.println("");
                                 }
@@ -584,7 +660,7 @@ public class FinalProject {
                     }
                     // Add the new Faculty to the people list
                     people.addPerson(newFaculty);
-                    System.out.println("Added "+numLectures +" lectures to "+ ucfID);
+                    System.out.println("Added "+numLectures +" lectures to UCF ID "+ ucfID);
                 /*
                  // add TA to labs
                  for (size.lecture.getLabs()){
