@@ -579,13 +579,20 @@ public class FinalProject {
                     System.out.println("Add a new faculty to the schedule:");
                     System.out.println("Enter UCF id:");
                     int ucfID = sc.nextInt();
-                    try {
-                        validateId(ucfID);
-                        System.out.println("ID is valid.");
-                    } catch (NumberFormatException e) {
-                        System.out.println("Please enter a valid integer.");
-                    } catch (IdException e) {
-                        System.out.println(e.getMessage());
+                    boolean idSuccess = false;
+                    while(!idSuccess){
+                        try {
+                            validateId(ucfID);
+                            System.out.println("ID is valid.");
+                            idSuccess = true;
+                        } catch (NumberFormatException e) {
+                            System.out.println("Please enter a valid integer. Try again:");
+                            ucfID = sc.nextInt();
+                        } catch (IdException e) {
+                            System.out.println(e.getMessage());
+                            System.out.println("Try again:");
+                            ucfID = sc.nextInt();
+                        }
                     }
                     sc.nextLine(); // Consume the newline character left by nextInt()
                     System.out.println("Enter name:");
