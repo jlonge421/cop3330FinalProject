@@ -143,6 +143,12 @@ class Faculty extends Person {
 }
 }
 
+class IdException extends Exception {
+    public IdException(String message) {
+        super(message);
+    }
+}
+
 class TA extends Person {
     private Faculty advisor;
     private String degree;
@@ -410,6 +416,15 @@ class Lecture {
 
 public class FinalProject {
 
+    public static void validateId(int id) throws IdException {
+        int numberOfDigits = (int) (Math.log10(id) + 1);
+
+        if (numberOfDigits != 7) {
+            throw new IdException("Sorry, incorrect format. (IDs are 7 digits)");
+        }
+    }
+
+
     public static ArrayList<Lecture> readLectures(String fileName, ArrayList<Lab> allLabs) {
         ArrayList<Lecture> lectures = new ArrayList<Lecture>();
         File inputFile = new File(fileName);
@@ -564,6 +579,14 @@ public class FinalProject {
                     System.out.println("Add a new faculty to the schedule:");
                     System.out.println("Enter UCF id:");
                     int ucfID = sc.nextInt();
+                    try {
+                        validateId(ucfID);
+                        System.out.println("ID is valid.");
+                    } catch (NumberFormatException e) {
+                        System.out.println("Please enter a valid integer.");
+                    } catch (IdException e) {
+                        System.out.println(e.getMessage());
+                    }
                     sc.nextLine(); // Consume the newline character left by nextInt()
                     System.out.println("Enter name:");
                     String name = sc.nextLine();
