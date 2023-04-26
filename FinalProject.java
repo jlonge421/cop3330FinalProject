@@ -1,12 +1,15 @@
 /*
     COP 3330 Final Project
     Alexander Lokhanov, Robert Dyer
-    Build: roughFinal
+    
+    Build: Core v1.1
     Description:
-    critical bugs fixed
-    all core functionality works
+        critical bugs fixed
+        all core functionality works
     Latest addition:
-    implemented UpdateInputFile method to update lec.txt
+        implemented UpdateInputFile method to update lec.txt
+        implemented IdException (check UcfID.length == 7)
+        implemented absolute path of file prompt & isFileCorrect method (returns if file exists)
 */
 
 
@@ -582,25 +585,37 @@ public class FinalProject {
         }
     }
 
+    public static boolean isFileCorrect(String filePath) {
+        File file = new File(filePath);
+        return file.exists() && file.isFile();
+    }
 
 
 
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        // ArrayList<Lecture> allLectures = new ArrayList<>();
-        // ArrayList<Lab> allLabs = new ArrayList<>();
-        // ArrayList<People> peopleList = new ArrayList<>();
-        // ArrayList<Lecture> allLectures = new ArrayList<>();
-        // ArrayList<Lab> allLabs = new ArrayList<>();
-        // String filePath = "lec.txt";
-        // allLectures = readLectures(filePath, allLabs);
+        String filePath = "lec.txt";
+
+        while(true) {
+            System.out.print("Enter the absolute path of the file: ");
+            filePath = sc.nextLine();
+
+            if (isFileCorrect(filePath)) {
+                System.out.println("File Found! Let's proceed...");
+                System.out.println("*****************************************");
+                break;
+            } else {
+                System.out.println("Sorry no such file.");
+            }
+        }
+
 
         ArrayList<Lecture> allLectures = new ArrayList<>();
         ArrayList<Lab> allLabs = new ArrayList<>();
         UniversityPeople people = new UniversityPeople();
 
-        String filePath = "lec.txt";
+
         allLectures = readLectures(filePath, allLabs);
 
         Map<Integer, Faculty> lectureFacultyMap = new HashMap<>();
@@ -614,17 +629,17 @@ public class FinalProject {
 
         //variable initializtion
         int option = 0;
-        
+        boolean idSuccess = false;
 
         while(option!=7){
-            System.out.println("\nChoose an option below:");
-            System.out.println("\t1- Add a new faculty to the schedule.");
-            System.out.println("\t2- Enroll a student to a lecture.");
-            System.out.println("\t3- Print the Schedule of a faculty.");
-            System.out.println("\t4- Print the schedule of an TA.");
-            System.out.println("\t5- Print the schedule of a student.");
-            System.out.println("\t6- Delete a scheduled lecture.");
-            System.out.println("\t7- Exit Program.");
+            System.out.println("\nChoose one of these options:");
+            System.out.println("\t1- Add a new Faculty to the schedule");
+            System.out.println("\t2- Enroll a Student to a Lecture");
+            System.out.println("\t3- Print the schedule of a Faculty");
+            System.out.println("\t4- Print the schedule of an TA");
+            System.out.println("\t5- Print the schedule of a Student");
+            System.out.println("\t6- Delete a Lecture");
+            System.out.println("\t7- Exit");
             //System.out.println("\t69- Look Inside.");
             System.out.print("\nEnter your choice:");
             option = sc.nextInt();
@@ -636,7 +651,7 @@ public class FinalProject {
                     System.out.println("Add a new faculty to the schedule:");
                     System.out.println("Enter UCF id:");
                     int ucfID = sc.nextInt();
-                    boolean idSuccess = false;
+                    idSuccess = false;
                     while(!idSuccess){
                         try {
                             validateId(ucfID);
@@ -699,16 +714,16 @@ public class FinalProject {
                                         idSuccess = false;
                                         while(!idSuccess){
                                             try {
-                                                validateId(ucfID);
+                                                validateId(ucfIDTA);
                                                 System.out.println("ID is valid.");
                                                 idSuccess = true;
                                             } catch (NumberFormatException e) {
                                                 System.out.print("Please enter a valid integer. Try again:");
-                                                ucfID = sc.nextInt();
+                                                ucfIDTA = sc.nextInt();
                                             } catch (IdException e) {
                                                 System.out.println(e.getMessage());
                                                 System.out.print("Try again:");
-                                                ucfID = sc.nextInt();
+                                                ucfIDTA = sc.nextInt();
                                             }
                                         }
                                         // Search for the TA's lecture's and make sure they dont match curCRN
@@ -783,9 +798,27 @@ public class FinalProject {
                     System.out.println("Enter UCFid: ");
                     int ucfid2 = sc.nextInt();
                     sc.nextLine();
+                    // Check IdException
+                    idSuccess = false;
+                    while(!idSuccess){
+                        try {
+                            validateId(ucfid2);
+                            System.out.println("ID is valid.");
+                            idSuccess = true;
+                        } catch (NumberFormatException e) {
+                            System.out.println("Please enter a valid integer. Try again:");
+                            ucfid2 = sc.nextInt();
+                        } catch (IdException e) {
+                            System.out.println(e.getMessage());
+                            System.out.println("Try again:");
+                            ucfid2 = sc.nextInt();
+                        }
+                    }
                     System.out.println("Enter name: ");
+                    //String trashXcsdhg = sc.nextLine();
                     String name2 = sc.nextLine();
                     System.out.println("Enter the CRNs of the lectures (0 if no lectures): ");
+                    //String trashXcssddhg = sc.nextLine();
                     String[] inputCRNs = sc.nextLine().split(" ");
                     ArrayList<Integer> studentLectures = new ArrayList<>();
 
@@ -825,6 +858,23 @@ public class FinalProject {
                     */
                     System.out.println("Enter the UCF ID of the faculty:");
                     int facultyUcfID = sc.nextInt();
+
+                    // Check IdException
+                    idSuccess = false;
+                    while(!idSuccess){
+                        try {
+                            validateId(facultyUcfID);
+                            System.out.println("ID is valid.");
+                            idSuccess = true;
+                        } catch (NumberFormatException e) {
+                            System.out.print("Please enter a valid integer. Try again:");
+                            facultyUcfID = sc.nextInt();
+                        } catch (IdException e) {
+                            System.out.println(e.getMessage());
+                            System.out.print("Try again:");
+                            facultyUcfID = sc.nextInt();
+                        }
+                    }
                     Faculty faculty = people.findFacultyByID(facultyUcfID);
 
                     if (faculty != null) {
@@ -849,6 +899,23 @@ public class FinalProject {
                     */
                     System.out.println("Enter the UCF ID of the TA:");
                     int taUcfID = sc.nextInt();
+
+                    // Check IdException
+                    idSuccess = false;
+                    while(!idSuccess){
+                        try {
+                            validateId(taUcfID);
+                            System.out.println("ID is valid.");
+                            idSuccess = true;
+                        } catch (NumberFormatException e) {
+                            System.out.print("Please enter a valid integer. Try again:");
+                            taUcfID = sc.nextInt();
+                        } catch (IdException e) {
+                            System.out.println(e.getMessage());
+                            System.out.print("Try again:");
+                            taUcfID = sc.nextInt();
+                        }
+                    }
                     TA ta = people.findTAByID(taUcfID);
 
                     if (ta != null) {
@@ -863,6 +930,23 @@ public class FinalProject {
                     */
                     System.out.println("Enter the UCF ID of the student:");
                     int studentUcfID = sc.nextInt();
+
+                    // Check IdException
+                    idSuccess = false;
+                    while(!idSuccess){
+                        try {
+                            validateId(studentUcfID);
+                            System.out.println("ID is valid.");
+                            idSuccess = true;
+                        } catch (NumberFormatException e) {
+                            System.out.print("Please enter a valid integer. Try again:");
+                            studentUcfID = sc.nextInt();
+                        } catch (IdException e) {
+                            System.out.println(e.getMessage());
+                            System.out.print("Try again:");
+                            studentUcfID = sc.nextInt();
+                        }
+                    }
                     Student student = people.findStudentByID(studentUcfID);
 
                     if (student != null) {
