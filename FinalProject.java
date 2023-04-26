@@ -2,7 +2,7 @@
     COP 3330 Final Project
     Alexander Lokhanov, Robert Dyer
 
-    Build: Core v1.6.3
+    Build: Core v1.7
     Description:
         critical bugs fixed
         all core functionality works
@@ -11,6 +11,7 @@
         implemented IdException (check UcfID.length == 7)
         implemented absolute path of file prompt & isFileCorrect method (returns if file exists)
         implemented scanInt method to scanInt with error handling
+        fixed implementation of case 1 to follow specifications (input handling)
     TODO:
         follow the code and do all // TODO comments
         fix formatting
@@ -179,6 +180,10 @@ class TA extends Person {
         this.lectures = new ArrayList<>();
     }
 
+    public String getDegree() {
+        return degree;
+    }
+
     public void addLab(int crn) {
         labs.add(crn);
         System.out.println("lab "+crn+" added");
@@ -244,6 +249,9 @@ class Student extends Person {
         this.labs = new ArrayList<>(); // Initialize the labs ArrayList
     }
 
+    public String getDegree() {
+        return "degree";
+    }
     public void removeLecture(Lecture lectureToRemove) {
         lectures.remove(lectureToRemove);
         if (lectureToRemove.hasLabs()) {
@@ -713,107 +721,100 @@ public class FinalProject {
                     // Create the new Faculty object
                     Faculty newFaculty = new Faculty(name, ucfID, rank, officeLocation);
                     
+                    System.out.println("Enter all CRNs for lectures, separated by spaces:");
+                    sc.nextLine(); // Consume the newline character
+                    String[] crns = sc.nextLine().split(" ");
+
+
+                    // ...
+
                     // Assign lectures to the new Faculty
+                    ArrayList<Integer> associatedLabCRNs = new ArrayList<>();
                     for (int i = 0; i < numLectures; i++) {
-                        System.out.printf("Enter CRN for lecture %d: ", i + 1);
-                        // TODO: check for already assigned crn
-                        int crn = scanInt(sc);
+                        int crn = Integer.parseInt(crns[i]);
                         // Find the lecture with this CRN and add it to the Faculty's lectures
                         for (Lecture lecture : allLectures) {
                             if (lecture.getCRN() == crn) {
                                 newFaculty.addLecture(crn);
                                 // Add hash relationship between the lecture's CRN and the faculty member
                                 lectureFacultyMap.put(crn, newFaculty);
-                                if(lecture.hasLabs()){
-                                    int numLabs = lecture.getLabs().size();
-                                    System.out.println(crn+" has "+numLabs+" lab sections:" +lecture.getLabs());
-                                    for(int ixLabs=0; ixLabs<numLabs; ixLabs++){
-                                        int curLab = lecture.getLabs(ixLabs);
-                                        System.out.print(curLab+", ");
-                                        //begin TA stuff here
-                                        System.out.println("Enter the TA’s id for "+curLab+": ");
-                                        int ucfIDTA = scanInt(sc);
 
-                                        // TODO: if a known ucfIDTA is entered, no need to ask for name/info, display known name/info
-                                        idSuccess = false;
-                                        while(!idSuccess){
-                                            try {
-                                                validateId(ucfIDTA);
-                                                System.out.println("ID is valid.");
-                                                idSuccess = true;
-                                            } catch (NumberFormatException e) {
-                                                System.out.print("Please enter a valid integer. Try again:");
-                                                ucfIDTA = scanInt(sc);
-                                            } catch (IdException e) {
-                                                System.out.println(e.getMessage());
-                                                System.out.print("Try again:");
-                                                ucfIDTA = scanInt(sc);
-                                            }
-                                        }
-                                        // Search for the TA's lecture's and make sure they dont match curCRN
-                                        // check students for the TA's ucfID. 
-                                        // if found, make sure getLectures(TA)!=curLecCRN
-
-                                        Student studentTA = people.findStudentByID(ucfIDTA);
-                                        // TODO: print out if the TA has been found as a Student
-                                        
-                                        System.out.println("TA’s supervisor’s name: ");
-                                        String trashXchg = sc.nextLine();
-                                        String advisor = sc.nextLine();
-                                        Faculty supervisor = new Faculty(advisor);
-                                        System.out.println("Name of TA: ");
-                                        String nameTA = sc.nextLine();
-                                        System.out.println("Degree Seeking: ");
-                                        // TODO: allow only: MS or PhD
-                                        String degree = sc.nextLine();
-                                        
-                                        //construct TA after gathering all info
-                                        TA newTA = new TA(nameTA, ucfIDTA, supervisor, degree);
-                                        newTA.addLab(curLab);
-                                        people.addPerson(newTA);
-                                        for(Lecture lecture2 : allLectures){
-                                            int numLecTA = newTA.getLectures().size();
-                                            for (int idx = 0; idx < numLecTA; idx++){
-                                                if (lecture2.getCRN() == newTA.getLecture(idx)) {
-                                                    System.out.println("TA is a student in the lecture! Pick another TA...");
-                                                    break;
-                                                }
-                                                // else, if TA is good to hire
-                                                System.out.println("HEEEEREEEE!");
-                                                newTA.addLab(curLab);
-                                            }
-                                        }
-
-
-                                        
-
-
-                                        
-
-                                    }
-                                    System.out.println("");
+                                if (lecture.hasLabs()) {
+                                    associatedLabCRNs.addAll(lecture.getLabs());
                                 }
-
                                 break;
                             }
                         }
                     }
+
                     // Add the new Faculty to the people list
                     people.addPerson(newFaculty);
-                    System.out.println("Added "+numLectures +" lectures to UCF ID "+ ucfID);
-                /*
-                 // add TA to labs
-                 for (size.lecture.getLabs()){
-                     if(lecture.hasLabs()){
-                         System.out.println(crn+" has labs: "+lecture.getLabs());
-                         // ask for TA name for each of the labs.
-                         // check that the TA's schedule as a student isnt in that CRN
-                         System.out.println("Enter the TA’s id for "+lecture.getLabs(0)+": ");
-                         int ucfIDTA = scanInt(sc);
+                    System.out.println("Added " + numLectures + " lectures to UCF ID " + ucfID);
 
-                     }
-                 }
-                    */
+                    // Prompt for TA info for each lab in the associatedLabCRNs list
+                    for (Integer labCRN : associatedLabCRNs) {
+                        System.out.println("Enter TA info for lab with CRN " + labCRN + ":");
+
+                            // Enter TA info here
+                            System.out.println("Enter the TA's UCF ID:");
+                            int ucfIDTA = scanInt(sc);
+
+                            idSuccess = false;
+                            while(!idSuccess){
+                                try {
+                                    validateId(ucfIDTA);
+                                        System.out.println("ID is valid.");
+                                        idSuccess = true;
+                                    } catch (NumberFormatException e) {
+                                        System.out.print("Please enter a valid integer. Try again:");
+                                        ucfIDTA = scanInt(sc);
+                                    } catch (IdException e) {
+                                        System.out.println(e.getMessage());
+                                        System.out.print("Try again:");
+                                        ucfIDTA = scanInt(sc);
+                                    }
+                                }
+
+                            // Check if the TA is already a student and retrieve their information if found
+                            Student studentTA = people.findStudentByID(ucfIDTA);
+
+                            // If the student is not found, ask for the TA's name and degree
+                            String nameTA;
+                            String degree;
+                            if (studentTA == null) {
+                                System.out.println("Name of TA:");
+                                sc.nextLine();
+                                nameTA = sc.nextLine();
+
+                                System.out.println("Degree Seeking (MS or PhD):");
+                                degree = sc.nextLine();
+                            } else {
+                                // If the student is found, use their name and degree
+                                nameTA = studentTA.getName();
+                                degree = studentTA.getDegree();
+                                System.out.println("TA found as a student: " + nameTA);
+                            }
+
+                            // Enter the TA's supervisor's name
+                            System.out.println("Enter the TA's supervisor's name:");
+                            //sc.nextLine(); 
+                            //sc.nextLine(); // consume newline
+                            String supervisorName = sc.nextLine();
+
+                            // Create a new Faculty object for the supervisor
+                            Faculty supervisor = new Faculty(supervisorName);
+
+                            // Create the new TA object
+                            TA newTA = new TA(nameTA, ucfIDTA, supervisor, degree);
+
+                            // Assign the lab to the new TA
+                            newTA.addLab(labCRN);
+
+                            // Add the new TA to the people list
+                            people.addPerson(newTA);
+
+                            // TODO: Check if the TA is a student in the lecture and if so, prompt to pick another TA
+                        }
                     break;
                 case 2:
                     /* 2- Enroll a student to a lecture 
