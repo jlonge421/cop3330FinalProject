@@ -2,7 +2,7 @@
     COP 3330 Final Project
     Alexander Lokhanov, Robert Dyer
 
-    Build: Core v1.1
+    Build: Core v1.6
     Description:
         critical bugs fixed
         all core functionality works
@@ -11,7 +11,7 @@
         implemented IdException (check UcfID.length == 7)
         implemented absolute path of file prompt & isFileCorrect method (returns if file exists)
     TODO:
-        implement code check on faculty rank input
+        follow the code and do all // TODO comments
         fix formatting
             - a lot of formatting should be displayed as [lecture.getCRN()/lecture.getTitle()/...]
 */
