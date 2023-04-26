@@ -2,7 +2,7 @@
     COP 3330 Final Project
     Alexander Lokhanov, Robert Dyer
 
-    Build: Core v1.6
+    Build: Core v1.6.3
     Description:
         critical bugs fixed
         all core functionality works
@@ -10,13 +10,14 @@
         implemented UpdateInputFile method to update lec.txt
         implemented IdException (check UcfID.length == 7)
         implemented absolute path of file prompt & isFileCorrect method (returns if file exists)
+        implemented scanInt method to scanInt with error handling
     TODO:
         follow the code and do all // TODO comments
         fix formatting
             - a lot of formatting should be displayed as [lecture.getCRN()/lecture.getTitle()/...]
 */
 
-
+import java.util.Arrays;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -594,6 +595,21 @@ public class FinalProject {
         return file.exists() && file.isFile();
     }
 
+    public static int scanInt(Scanner sc) {
+        int outInt;
+        while(true){
+                try{
+                    String stringIntTemp = sc.next();
+                    outInt = Integer.parseInt(stringIntTemp);
+                    break;
+                    
+                } catch (Exception e) {
+               System.out.print("Make sure you are entering a whole number. Try again:");
+                }
+            }
+        return outInt;
+    }
+
 
 
 
@@ -646,7 +662,8 @@ public class FinalProject {
             System.out.println("\t7- Exit");
             //System.out.println("\t69- Look Inside.");
             System.out.print("\nEnter your choice:");
-            option = sc.nextInt();
+            option = scanInt(sc);
+
             switch(option){
                 case 1: 
                     /* 1- Add a new faculty to the schedule.
@@ -654,7 +671,7 @@ public class FinalProject {
                     */
                     System.out.println("Add a new faculty to the schedule:");
                     System.out.println("Enter UCF id:");
-                    int ucfID = sc.nextInt();
+                    int ucfID = scanInt(sc);
                     idSuccess = false;
                     while(!idSuccess){
                         try {
@@ -663,36 +680,35 @@ public class FinalProject {
                             idSuccess = true;
                         } catch (NumberFormatException e) {
                             System.out.print("Please enter a valid integer. Try again:");
-                            ucfID = sc.nextInt();
+                            ucfID = scanInt(sc);
                         } catch (IdException e) {
                             System.out.println(e.getMessage());
                             System.out.print("Try again:");
-                            ucfID = sc.nextInt();
+                            ucfID = scanInt(sc);
                         }
                     }
                     sc.nextLine(); // Consume the newline character left by nextInt()
                     System.out.println("Enter name:");
                     String name = sc.nextLine();
                     System.out.println("Enter rank:");
-                    // TODO: accept only: professor, associate professor, assistant professor, adjunct
-                    String rank = sc.nextLine();
+                    List<String> validRanks = Arrays.asList("professor", "associate professor", "assistant professor", "adjunct");
+                    String rank;
+
+                    do {
+                        rank = sc.nextLine().toLowerCase();
+                        if (!validRanks.contains(rank)) {
+                            System.out.println("Invalid rank. Please enter a valid rank (professor, associate professor, assistant professor, or adjunct):");
+                        }
+                    } while (!validRanks.contains(rank));
+
+
                     System.out.println("Enter office location:");
                     String officeLocation = sc.nextLine();
                     System.out.println("How many lectures to assign to this faculty?");
                     // TODO:take in all lectures in one input seperated by " " instead.
 
                     // make sure an integer is entered
-                    int numLectures = 0;
-                    while(true){
-                        try{
-                            String stringIntTemp = sc.next();
-                            numLectures = Integer.parseInt(stringIntTemp);
-                            break;
-                            
-                        } catch (Exception e) {
-                            System.out.println("Make sure you are entering a whole number. Try again..");
-                        }
-                    }
+                    int numLectures = scanInt(sc);
 
                     // Create the new Faculty object
                     Faculty newFaculty = new Faculty(name, ucfID, rank, officeLocation);
@@ -701,7 +717,7 @@ public class FinalProject {
                     for (int i = 0; i < numLectures; i++) {
                         System.out.printf("Enter CRN for lecture %d: ", i + 1);
                         // TODO: check for already assigned crn
-                        int crn = sc.nextInt();
+                        int crn = scanInt(sc);
                         // Find the lecture with this CRN and add it to the Faculty's lectures
                         for (Lecture lecture : allLectures) {
                             if (lecture.getCRN() == crn) {
@@ -716,7 +732,8 @@ public class FinalProject {
                                         System.out.print(curLab+", ");
                                         //begin TA stuff here
                                         System.out.println("Enter the TA’s id for "+curLab+": ");
-                                        int ucfIDTA = sc.nextInt();
+                                        int ucfIDTA = scanInt(sc);
+
                                         // TODO: if a known ucfIDTA is entered, no need to ask for name/info, display known name/info
                                         idSuccess = false;
                                         while(!idSuccess){
@@ -726,11 +743,11 @@ public class FinalProject {
                                                 idSuccess = true;
                                             } catch (NumberFormatException e) {
                                                 System.out.print("Please enter a valid integer. Try again:");
-                                                ucfIDTA = sc.nextInt();
+                                                ucfIDTA = scanInt(sc);
                                             } catch (IdException e) {
                                                 System.out.println(e.getMessage());
                                                 System.out.print("Try again:");
-                                                ucfIDTA = sc.nextInt();
+                                                ucfIDTA = scanInt(sc);
                                             }
                                         }
                                         // Search for the TA's lecture's and make sure they dont match curCRN
@@ -792,7 +809,7 @@ public class FinalProject {
                          // ask for TA name for each of the labs.
                          // check that the TA's schedule as a student isnt in that CRN
                          System.out.println("Enter the TA’s id for "+lecture.getLabs(0)+": ");
-                         int ucfIDTA = sc.nextInt();
+                         int ucfIDTA = scanInt(sc);
 
                      }
                  }
@@ -804,7 +821,7 @@ public class FinalProject {
                     */
                     System.out.println("Enroll a student to a lecture.");
                     System.out.println("Enter UCFid: ");
-                    int ucfid2 = sc.nextInt();
+                    int ucfid2 = scanInt(sc);
                     sc.nextLine();
 
                     // Check IdException
@@ -816,11 +833,11 @@ public class FinalProject {
                             idSuccess = true;
                         } catch (NumberFormatException e) {
                             System.out.println("Please enter a valid integer. Try again:");
-                            ucfid2 = sc.nextInt();
+                            ucfid2 = scanInt(sc);
                         } catch (IdException e) {
                             System.out.println(e.getMessage());
                             System.out.println("Try again:");
-                            ucfid2 = sc.nextInt();
+                            ucfid2 = scanInt(sc);
                         }
                     }
 
@@ -870,7 +887,7 @@ public class FinalProject {
                     /* 3- Print the Schedule of a faculty.
                     */
                     System.out.println("Enter the UCF ID of the faculty:");
-                    int facultyUcfID = sc.nextInt();
+                    int facultyUcfID = scanInt(sc);
 
                     // Check IdException
                     idSuccess = false;
@@ -881,11 +898,11 @@ public class FinalProject {
                             idSuccess = true;
                         } catch (NumberFormatException e) {
                             System.out.print("Please enter a valid integer. Try again:");
-                            facultyUcfID = sc.nextInt();
+                            facultyUcfID = scanInt(sc);
                         } catch (IdException e) {
                             System.out.println(e.getMessage());
                             System.out.print("Try again:");
-                            facultyUcfID = sc.nextInt();
+                            facultyUcfID = scanInt(sc);
                         }
                     }
                     Faculty faculty = people.findFacultyByID(facultyUcfID);
@@ -911,7 +928,7 @@ public class FinalProject {
                     /* 4- Print the schedule of an TA.
                     */
                     System.out.println("Enter the UCF ID of the TA:");
-                    int taUcfID = sc.nextInt();
+                    int taUcfID = scanInt(sc);
 
                     // Check IdException
                     idSuccess = false;
@@ -922,11 +939,11 @@ public class FinalProject {
                             idSuccess = true;
                         } catch (NumberFormatException e) {
                             System.out.print("Please enter a valid integer. Try again:");
-                            taUcfID = sc.nextInt();
+                            taUcfID = scanInt(sc);
                         } catch (IdException e) {
                             System.out.println(e.getMessage());
                             System.out.print("Try again:");
-                            taUcfID = sc.nextInt();
+                            taUcfID = scanInt(sc);
                         }
                     }
                     TA ta = people.findTAByID(taUcfID);
@@ -942,7 +959,7 @@ public class FinalProject {
                     /* 5- Print the schedule of a student.
                     */
                     System.out.println("Enter the UCF ID of the student:");
-                    int studentUcfID = sc.nextInt();
+                    int studentUcfID = scanInt(sc);
 
                     // Check IdException
                     idSuccess = false;
@@ -953,11 +970,11 @@ public class FinalProject {
                             idSuccess = true;
                         } catch (NumberFormatException e) {
                             System.out.print("Please enter a valid integer. Try again:");
-                            studentUcfID = sc.nextInt();
+                            studentUcfID = scanInt(sc);
                         } catch (IdException e) {
                             System.out.println(e.getMessage());
                             System.out.print("Try again:");
-                            studentUcfID = sc.nextInt();
+                            studentUcfID = scanInt(sc);
                         }
                     }
                     Student student = people.findStudentByID(studentUcfID);
@@ -978,7 +995,7 @@ public class FinalProject {
                     // TODO: display result as: [69745/COP5698/Programming Languages] Deleted
                     // ^^^^ use lec.getCRN() etc..
                     System.out.println("Delete a scheduled lecture: ");
-                    int lectureCRNToDelete = sc.nextInt();
+                    int lectureCRNToDelete = scanInt(sc);
                     for(Lecture lecture : allLectures){
                         if( lecture.getCRN() == lectureCRNToDelete)
                             System.out.println("Found lecture by CRN. Deleting Lecture now...");
