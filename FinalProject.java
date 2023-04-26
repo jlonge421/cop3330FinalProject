@@ -1,13 +1,21 @@
 /*
     COP 3330 Final Project
     Alexander Lokhanov, Robert Dyer
+    Build: roughFinal
+    Description:
+    critical bugs fixed
+    all core functionality works
+    Latest addition:
+    implemented UpdateInputFile method to update lec.txt
 */
 
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -351,29 +359,43 @@ class Lecture {
     }
 
 
+
+
     public boolean requiresLab() {
     return labs != null && !labs.isEmpty();
     }
 
     // Add A Lab
     public void addLab(Lab lab) {
-    labs.add(lab);
-}
+        labs.add(lab);
+    }
 
+    public String getPrefix() {
+        return prefix;
+    }
 
-    // Returns If The Lecture Is Online
+    public String getTitle() {
+        return title;
+    }
+
+    public String getType() {
+        return type;
+    }
+
     public boolean isOnline() {
         return isOnline;
     }
 
-    // Returns If Lecture Has Labs
-    public boolean hasLabs() {
-        return hasLabs;
+    public String getBuildingCode(){
+        return buildingCode;
     }
 
-    // Returns Room Number
     public String getRoomNumber() {
         return roomNumber;
+    }
+
+    public boolean hasLabs() {
+        return hasLabs;
     }
 
     // Returns All Labs
@@ -392,6 +414,10 @@ class Lecture {
         }
         int labIdx = labCRNs.get(idx);
         return labIdx;
+    }
+
+    public ArrayList<Lab> getLabObjects() {
+        return labs;
     }
 
     // Returns CRN
@@ -524,7 +550,38 @@ public class FinalProject {
         }
     }
 
-    //public static void addTa
+    public static void updateInputFile(String fileName, ArrayList<Lecture> lectures, ArrayList<Lab> allLabs) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileName))) {
+            for (Lecture lecture : lectures) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(lecture.getCRN()).append(",");
+                sb.append(lecture.getPrefix()).append(",");
+                sb.append(lecture.getTitle()).append(",");
+                sb.append(lecture.getType()).append(",");
+                
+                if (lecture.isOnline()) {
+                    sb.append("Online");
+                } else {
+                    sb.append(lecture.getBuildingCode()).append(",");
+                    sb.append(lecture.getRoomNumber()).append(",");
+                    sb.append(lecture.hasLabs() ? "Yes" : "No");
+                }
+
+                bw.write(sb.toString());
+                bw.newLine();
+
+                if (lecture.hasLabs()) {
+                    for (Lab lab : lecture.getLabObjects()) {
+                        bw.write(lab.getCRN() + "," + lab.getRoomNumber());
+                        bw.newLine();
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
 
 
 
@@ -586,11 +643,11 @@ public class FinalProject {
                             System.out.println("ID is valid.");
                             idSuccess = true;
                         } catch (NumberFormatException e) {
-                            System.out.println("Please enter a valid integer. Try again:");
+                            System.out.print("Please enter a valid integer. Try again:");
                             ucfID = sc.nextInt();
                         } catch (IdException e) {
                             System.out.println(e.getMessage());
-                            System.out.println("Try again:");
+                            System.out.print("Try again:");
                             ucfID = sc.nextInt();
                         }
                     }
@@ -638,6 +695,22 @@ public class FinalProject {
                                         //begin TA stuff here
                                         System.out.println("Enter the TA’s id for "+curLab+": ");
                                         int ucfIDTA = sc.nextInt();
+
+                                        idSuccess = false;
+                                        while(!idSuccess){
+                                            try {
+                                                validateId(ucfID);
+                                                System.out.println("ID is valid.");
+                                                idSuccess = true;
+                                            } catch (NumberFormatException e) {
+                                                System.out.print("Please enter a valid integer. Try again:");
+                                                ucfID = sc.nextInt();
+                                            } catch (IdException e) {
+                                                System.out.println(e.getMessage());
+                                                System.out.print("Try again:");
+                                                ucfID = sc.nextInt();
+                                            }
+                                        }
                                         // Search for the TA's lecture's and make sure they dont match curCRN
                                         // check students for the TA's ucfID. 
                                         // if found, make sure getLectures(TA)!=curLecCRN
@@ -805,9 +878,14 @@ public class FinalProject {
                     (Deleting a lecture requires deleting its labs and 
                     updating any student’s schedule accordingly)
                     */
-                    System.out.println("option 6 selected.");
+                    System.out.println("Delete a scheduled lecture: ");
                     int lectureCRNToDelete = sc.nextInt();
+                    for(Lecture lecture : allLectures){
+                        if( lecture.getCRN() == lectureCRNToDelete)
+                            System.out.println("Found lecture by CRN. Deleting Lecture now...");
+                    }
                     deleteLecture(lectureCRNToDelete, allLectures, allLabs, people);
+                    updateInputFile(filePath, allLectures, allLabs);
                     break;
                 case 7:
                     System.out.println("Exiting program. Goodbye!");
