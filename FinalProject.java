@@ -1,7 +1,7 @@
 /*
     COP 3330 Final Project
     Alexander Lokhanov, Robert Dyer
-    
+
     Build: Core v1.1
     Description:
         critical bugs fixed
@@ -10,6 +10,10 @@
         implemented UpdateInputFile method to update lec.txt
         implemented IdException (check UcfID.length == 7)
         implemented absolute path of file prompt & isFileCorrect method (returns if file exists)
+    TODO:
+        implement code check on faculty rank input
+        fix formatting
+            - a lot of formatting should be displayed as [lecture.getCRN()/lecture.getTitle()/...]
 */
 
 
@@ -670,10 +674,12 @@ public class FinalProject {
                     System.out.println("Enter name:");
                     String name = sc.nextLine();
                     System.out.println("Enter rank:");
+                    // TODO: accept only: professor, associate professor, assistant professor, adjunct
                     String rank = sc.nextLine();
                     System.out.println("Enter office location:");
                     String officeLocation = sc.nextLine();
                     System.out.println("How many lectures to assign to this faculty?");
+                    // TODO:take in all lectures in one input seperated by " " instead.
 
                     // make sure an integer is entered
                     int numLectures = 0;
@@ -694,6 +700,7 @@ public class FinalProject {
                     // Assign lectures to the new Faculty
                     for (int i = 0; i < numLectures; i++) {
                         System.out.printf("Enter CRN for lecture %d: ", i + 1);
+                        // TODO: check for already assigned crn
                         int crn = sc.nextInt();
                         // Find the lecture with this CRN and add it to the Faculty's lectures
                         for (Lecture lecture : allLectures) {
@@ -710,7 +717,7 @@ public class FinalProject {
                                         //begin TA stuff here
                                         System.out.println("Enter the TA’s id for "+curLab+": ");
                                         int ucfIDTA = sc.nextInt();
-
+                                        // TODO: if a known ucfIDTA is entered, no need to ask for name/info, display known name/info
                                         idSuccess = false;
                                         while(!idSuccess){
                                             try {
@@ -731,7 +738,7 @@ public class FinalProject {
                                         // if found, make sure getLectures(TA)!=curLecCRN
 
                                         Student studentTA = people.findStudentByID(ucfIDTA);
-                                        // TODO print out if the TA has been found as a Student
+                                        // TODO: print out if the TA has been found as a Student
                                         
                                         System.out.println("TA’s supervisor’s name: ");
                                         String trashXchg = sc.nextLine();
@@ -740,6 +747,7 @@ public class FinalProject {
                                         System.out.println("Name of TA: ");
                                         String nameTA = sc.nextLine();
                                         System.out.println("Degree Seeking: ");
+                                        // TODO: allow only: MS or PhD
                                         String degree = sc.nextLine();
                                         
                                         //construct TA after gathering all info
@@ -798,6 +806,7 @@ public class FinalProject {
                     System.out.println("Enter UCFid: ");
                     int ucfid2 = sc.nextInt();
                     sc.nextLine();
+
                     // Check IdException
                     idSuccess = false;
                     while(!idSuccess){
@@ -814,10 +823,14 @@ public class FinalProject {
                             ucfid2 = sc.nextInt();
                         }
                     }
+
+
+
                     System.out.println("Enter name: ");
                     //String trashXcsdhg = sc.nextLine();
                     String name2 = sc.nextLine();
                     System.out.println("Enter the CRNs of the lectures (0 if no lectures): ");
+                    // TODO: Make sure the student isnt assigned as TA for CRN
                     //String trashXcssddhg = sc.nextLine();
                     String[] inputCRNs = sc.nextLine().split(" ");
                     ArrayList<Integer> studentLectures = new ArrayList<>();
@@ -962,6 +975,8 @@ public class FinalProject {
                     (Deleting a lecture requires deleting its labs and 
                     updating any student’s schedule accordingly)
                     */
+                    // TODO: display result as: [69745/COP5698/Programming Languages] Deleted
+                    // ^^^^ use lec.getCRN() etc..
                     System.out.println("Delete a scheduled lecture: ");
                     int lectureCRNToDelete = sc.nextInt();
                     for(Lecture lecture : allLectures){
